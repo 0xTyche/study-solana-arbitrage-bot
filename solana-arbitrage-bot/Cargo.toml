@@ -1,0 +1,46 @@
+[package]
+name = "solana-arbitrage-bot"
+version = "0.1.0"
+edition = "2021"
+description = "A solana arbitrage bot"
+reference = "https://github.com/solana-labs/solana/blob/master/Cargo.toml"
+check_safe_time = "2025-06-19"
+
+[dependencies]
+
+solana-sdk = "2.0.0"
+solana-client = "2.0.0"
+solana-program = "2.0.0"
+solana-account-decoder = "2.0.0"
+solana-transaction-status = "2.0.0"
+
+# SPL token support
+spl-token = "=4.0.1"
+spl-token-2022 = "=2.0.1"
+spl-token-group-interface = "=0.1.1"
+spl-token-metadata-interface = "=0.2.1"
+
+spl-associated-token-account = "=2.3.1"
+
+# Serialization/deserialization
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.5"
+
+# Async runtime
+tokio = { version = "1.32", features = ["full"] }
+futures = "0.3"
+
+# Utilities
+anyhow = "1.0"
+thiserror = "1.0"
+rand = "0.8"
+bs58 = "0.4"
+borsh = "0.10.3"
+bytemuck = { version = "1.16.1", features = ["derive"] }
+
+# Command line argument parsing
+clap = "3.2"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
