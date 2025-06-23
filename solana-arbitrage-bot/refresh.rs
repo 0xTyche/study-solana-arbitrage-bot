@@ -28,5 +28,104 @@ pub async fn initialize_pool_data(
     raydium_clmm_pools: Option<&Vec<String>>,
     rpc_client: Arc<RpcClient>,
 ) -> anyhow::Result<MintPoolData> {
-    
+    info!("Initializing pool data for mint: {}", mint);
+
+    let mut pool_data = MintPoolData::new(mint, wallet_account);
+    info!("Pool data initialized for mint: {}", mint);
+
+    if let Some(pools) = pump_pools {
+        for pool_address in pools {
+            let pump_pool_pubkey = Pubkey::from_str(pool_address)?;
+
+            match rpc_client.get_account(&pump_pool_pubkey){
+                Ok(account) => {
+                    if account.owner != pump_program_id(){
+                        error!(
+                            "Error: Pump pool account is not owned by the Pump program. Expected: {}, Actual: {}",
+                            pump_program_id(), account.owner
+                        );
+                        return Err(anyhow::anyhow!(
+                            "Pump pool account is not owned by the Pump program"
+                        ));
+                    }
+                    match PumpAmmInfo::load_checked(&account.data)
+                    {
+                        Ok(amm_info) => {
+                            let (sol_vault, token_vault) = if sol_mint() == amm_info.base_mint{
+                                (
+                                    amm_info.pool_base_token_account,
+                                    amm_info.pool_quote_token_account
+                                )
+                            }
+                            else if sol_mint() == amm_info.quote_mint {
+                                (
+                                    amm_info.pool_quote_token_account,
+                                    amm_info.pool_base_token_account,
+                                )
+                            } else {
+                                (
+                                    amm_info.pool_base_token_account,
+                                    amm_info.pool_quote_token_account
+                                )
+                            };
+
+                            let fee_token_wallet =
+                                spl_associated_token_account::get_associated_token_address(
+                                    &pump_fee_wallet(),
+                                    &amm_info.quote_mint,
+                                );
+                            
+                            pool_data.add_pump_pool(
+                                pool_address,
+                                &token_vault.to_string(),
+                                &sol_vault.to_string(),
+                                &fee_token_wallet.to_string(),
+                            )?;
+                            info!("Pump pool added: {}", pool_address);
+                            info!("    Base mint: {}", amm_info.base_mint.to_string());
+                            info!("    Quote mint: {}", amm_info.quote_mint.to_string());
+                            info!("    Token vault: {}", token_vault.to_string());
+                            info!("    Sol vault: {}", sol_vault.to_string());
+                            info!("    Fee token wallet: {}", fee_token_wallet.to_string());
+                            info!("    Initialized Pump pool: {}\n", pump_pool_pubkey);
+                            }
+                            Err(e) => {
+                                error!(
+                                    "Error parsing AmmInfo from Pump pool {}: {:?}",
+                                    pump_pool_pubkey, e
+                                );
+                                return Err(e);
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        error!(
+                            "Error fetching Pump pool account {}: {:?}",
+                            pump_pool_pubkey, e
+                        );
+                        return Err(anyhow::anyhow!("Error fetching Pump pool account"));
+                    }
+                }
+            }
+        }
+    }
+
+    if let Some(pool) = raydium_pools {
+
+    }
+    if let Some(pool) = raydium_cp_pools  {
+
+    }
+    if let Some(pool) = dlmm_pools {
+
+    }
+    if let Some(pool) = whirlpool_pools {
+
+    }
+    if let Some(pool) = raydium_clmm_pools {
+
+    }
+    if let Some(pool) = raydium_clmm_pools {
+
+    }
 }
