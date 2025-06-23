@@ -197,3 +197,37 @@ pub async fn run(config_path: &str) -> anyhow::Result<()> {
 }
 
 // blockhash refresher 方法实现
+async fn blockhash_refresher(rpc_client: Arc<RpcClient>, cached_blockhash: Arc<Mutex<Hash>>, refresh_interval: Duration) {
+    loop{
+        match rpc_client.get_latest_blockhash(){
+            Ok(blockhash) => {
+                let mut guard = cached_blockhash.lock().await;
+                *guard = blockhash;
+                info!("Blockhash refreshed: {}", blockhash);
+            }
+            Err(e) => {
+                error!("Failed to get latest blockhash: {}", e);
+            }
+        }
+        tokio::time::sleep(refresh_interval).await;
+    }
+}
+
+// 加载钱包私钥
+fn load_keypair(private_key: &str) -> anyhow::Result<Keypair> {
+    if let Ok(keypair) = bs58::decode(private_key)
+        .into_vec()
+        .map_err(|e| anyhow::anyhow!("Failed to decode private key: {}", e)
+        .and_then(|bytes|{
+            Keypair::from_bytes(&bytes).map_err(|e| anyhow::anyhow!("Invalid keypair bytes: {}", e))
+        })
+    {
+        Ok(keypair)
+    }
+    
+    if let Ok(keypair) = solana_sdk::signature::read_keypair_file(private_key){
+        return Ok(keypair);
+    }
+
+    anyhow::bail!("Failed to load wallet keypair from: {}",private_key);
+}
