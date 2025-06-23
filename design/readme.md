@@ -77,3 +77,11 @@ const route = {
   gasEstimate: 200000
 };
 ```
+
+##  阅读指导
+main.rs → bot.rs
+dex/raydium（或任一熟悉 DEX）→ transaction.rs
+pools.rs → refresh.rs
+
+扩展：
+dlmm/, pump/, whirlpool/, kamino.rs
