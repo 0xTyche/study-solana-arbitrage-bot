@@ -85,3 +85,23 @@ pools.rs → refresh.rs
 
 扩展：
 dlmm/, pump/, whirlpool/, kamino.rs
+
+## 创建ALT
+```bash
+root@racknerd-9da1d08:~/home/Solana-Arbitrage-Bot# solana address-lookup-table create --authority $(solana address)
+
+Signature: 2FERiXyGaT4Sanr1vcAjh91nASCXJMnmWHm19VMyRVfnJQaRFAjdNPLkAhnrVbpGzC3kbBhLwsrajergaruyZynt
+Lookup Table Address: CCXTHFHXar7fTEQWrcC7iAWcJSJRbYBjwgtGxBKSz6rt
+
+root@racknerd-9da1d08:~/home/Solana-Arbitrage-Bot# 
+
+# 添加ALT扩展地址,该地址已经添加到ALT当中
+root@racknerd-9da1d08:~/home/Solana-Arbitrage-Bot# solana address-lookup-table extend CCXTHFHXar7fTEQWrcC7iAWcJSJRbYBjwgtGxBKSz6rt --addresses D4udSzAbdyKpRYCvA7iaoGZnu13cXx5VMxx7DP4rBus1
+
+Signature: 37BPnWF19KTFQFbawCr6ZKhPRw6aNyTb22SmxDNfCMoDbAw58bwTUZDozN3P5K8TRCYWgUp5NraPVQtU9KoLcvCi
+
+```
+
+## 他人套利成功例子-2300倍收益
+
+https://solscan.io/tx/3Aqpq9mcpnNPgL5kgLhocDMMAVqaDpPygyiTDtFwBw7uJmasRPL5Nz1H62ehvwvpVdpueTHtBiCCAvsbgUck2YMg
