@@ -39,6 +39,7 @@ pub async fn initialize_pool_data(
 
             match rpc_client.get_account(&pump_pool_pubkey){
                 Ok(account) => {
+                    // 检查账户是否由 pumpfun 控制
                     if account.owner != pump_program_id(){
                         error!(
                             "Error: Pump pool account is not owned by the Pump program. Expected: {}, Actual: {}",
@@ -48,9 +49,11 @@ pub async fn initialize_pool_data(
                             "Pump pool account is not owned by the Pump program"
                         ));
                     }
+                    // 解析 PumpAmmInfo 数据
                     match PumpAmmInfo::load_checked(&account.data)
                     {
                         Ok(amm_info) => {
+                            // 判断池子哪边是sol 哪边是token，sol/token、token/sol、token/token
                             let (sol_vault, token_vault) = if sol_mint() == amm_info.base_mint{
                                 (
                                     amm_info.pool_base_token_account,
@@ -68,19 +71,21 @@ pub async fn initialize_pool_data(
                                     amm_info.pool_quote_token_account
                                 )
                             };
-
+                            // 构建手续费地址 Pump 官方的收款钱包 + quote token 的 ATA 地址。
                             let fee_token_wallet =
                                 spl_associated_token_account::get_associated_token_address(
                                     &pump_fee_wallet(),
                                     &amm_info.quote_mint,
                                 );
                             
+                            // 将池子的数据添加到我的池子管理列表当中
                             pool_data.add_pump_pool(
                                 pool_address,
                                 &token_vault.to_string(),
                                 &sol_vault.to_string(),
                                 &fee_token_wallet.to_string(),
                             )?;
+                            // 打印池子的数据
                             info!("Pump pool added: {}", pool_address);
                             info!("    Base mint: {}", amm_info.base_mint.to_string());
                             info!("    Quote mint: {}", amm_info.quote_mint.to_string());
@@ -111,7 +116,7 @@ pub async fn initialize_pool_data(
     }
 
     if let Some(pool) = raydium_pools {
-
+        
     }
     if let Some(pool) = raydium_cp_pools  {
 
