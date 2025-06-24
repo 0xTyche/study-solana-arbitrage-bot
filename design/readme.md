@@ -105,3 +105,9 @@ Signature: 37BPnWF19KTFQFbawCr6ZKhPRw6aNyTb22SmxDNfCMoDbAw58bwTUZDozN3P5K8TRCYWg
 ## 他人套利成功例子-2300倍收益
 
 https://solscan.io/tx/3Aqpq9mcpnNPgL5kgLhocDMMAVqaDpPygyiTDtFwBw7uJmasRPL5Nz1H62ehvwvpVdpueTHtBiCCAvsbgUck2YMg
+
+## raydium amm 链上池子信息举例 wsol-usdc
+
+Link：https://solscan.io/account/3ucNos4NbumPLZNWztqGHNFFgkHeRMBQAVemeeomsUxv#anchorData
+
+
