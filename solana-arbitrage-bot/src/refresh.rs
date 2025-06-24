@@ -398,7 +398,21 @@ pub async fn initialize_pool_data(
                             }
                             info!("");
                         }
+                        Err(e) => {
+                            error!(
+                                "Error parsing Whirlpool data from pool {}: {:?}",
+                                whirlpool_pool_pubkey, e
+                            );
+                            return Err(anyhow::anyhow!("Error parsing Whirlpool data"));
+                        }
                     }
+                }
+                Err(e) => {
+                    error!(
+                        "Error fetching Whirlpool pool account {}: {:?}",
+                        whirlpool_pool_pubkey, e
+                    );
+                    return Err(anyhow::anyhow!("Error fetching Whirlpool pool account"));
                 }
             }
 
