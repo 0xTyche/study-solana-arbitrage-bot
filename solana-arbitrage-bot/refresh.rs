@@ -182,9 +182,78 @@ pub async fn initialize_pool_data(
     }
     }
     if let Some(pool) = raydium_cp_pools  {
+        for pool_address in pools {
+            let raydium_cp_pool_pubkey = Pubkey::from_str(pool_address)?;
 
+            match rpc_client.get_account(&raydium_cp_pool_pubkey){
+                Ok(account)=>{
+                    // 检查账户是否由 raydium CP program 控制
+                    if account.owner != raydium_cp_program_id(){
+                        error!(
+                            "Error: Raydium CP pool account is not owned by the Raydium CP program. Expected: {}, Actual: {}",
+                            raydium_cp_program_id(), account.owner
+                        );
+                        return Err(anyhow::anyhow!("Raydium CP pool account is not owned by the Raydium CP program"));
+                    }
+                    // 解析 raydium cp pool数据
+                    match RaydiumCpAmmInfo::load_checked(&account.data){
+                        Ok(amm_info)=>{
+                            if amm_info.token_0_mint != pool.data.mint && amm_info.token_1_mint != pool.data.mint{
+                                error!(
+                                    "Mint {} is not present in the raydium cp pool {}, skipping", pool_data.mint, raydium_cp_pool_pubkey
+                                );
+                                return Err(anyhow::anyhow!("Invalid raydium cp pool {}", raydium_cp_pool_pubkey));
+                            }
+
+                            // 经过上面判断可以考虑符合要求了，判断左侧是sol还是右侧是sol
+                            let (sol_vault, token_vault) = if sol_mint() == amm_info.token_0_mint {
+                                (amm_info.token_0_vault, amm_info.token_1_vault)
+                            }
+                            else if sol_mint() == amm_info.token_1_mint {
+                                (amm_info.token_1_vault, amm_info.token_0_vault)
+                            }
+                            else {
+                                error!(
+                                    "SOL is not present in the raydium cp pool {}, skipping", raydium_cp_pool_pubkey
+                                );
+                                return Err(anyhow::anyhow!("Invalid raydium cp pool {}", raydium_cp_pool_pubkey));
+                            };
+
+                            pool_data.add_raydium_cp_pool(
+                                pool_address,
+                                &token_vault.to_string(),
+                                &sol_vault.to_string(),
+                                &amm_info.amm_config.to_string(),
+                                &amm_info.abservation_key.to_string(),
+                            )?;
+
+                            info!("Raydium CP pool added: {}", pool_address);
+                            info!("    Token vault: {}", amm_info.token_0_mint.to_string());
+                            info!("    Sol vault: {}", amm_info.token_1_mint.to_string());
+                            info!("    Amm config", amm_info.amm_config.to_string());
+                            info!("    Observation key: {}\n", amm_info.abservation_key.to_string());
+                        }
+                        Err(e) => {
+                            error!(
+                                "Error parsing AmmInfo from Raydium CP pool {}: {:?}",
+                                raydium_cp_pool_pubkey, e
+                            );
+                            return Err(e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!(
+                        "Error fetching Raydium CP pool account {}: {:?}",
+                        raydium_cp_pool_pubkey, e
+                    );
+                    return Err(anyhow::anyhow!("Error fetching Raydium CP pool account"));
+                }
+            }
+        }
     }
     if let Some(pool) = dlmm_pools {
+        
 
     }
     if let Some(pool) = whirlpool_pools {
