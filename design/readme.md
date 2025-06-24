@@ -110,4 +110,5 @@ https://solscan.io/tx/3Aqpq9mcpnNPgL5kgLhocDMMAVqaDpPygyiTDtFwBw7uJmasRPL5Nz1H62
 
 Link：https://solscan.io/account/3ucNos4NbumPLZNWztqGHNFFgkHeRMBQAVemeeomsUxv#anchorData
 
-
+## whirlpool ticks and price
+https://dev.orca.so/Architecture%20Overview/Price%20&%20Ticks
