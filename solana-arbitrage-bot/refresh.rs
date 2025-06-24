@@ -253,7 +253,71 @@ pub async fn initialize_pool_data(
         }
     }
     if let Some(pool) = dlmm_pools {
-        
+        for pool_address in pools{
+            let dlmm_pool_pubkey = Pubkey::from_str(pool_address)?;
+
+            match rpc_client.get_account(&dlmm_pool_pubkey){
+                Ok(account)=>{
+                    // 检查账户是否由 dlmm program 控制，抛出提示，说明我们期望的dlmm的program id，以及当前的account的owner
+                    if account.owner != dlmm_program_id(){
+                        error!(
+                            "Error: DLMM pool account is not owned by the DLMM program. Expected: {}, Actual: {}",  dlmm_program_id(), account.owner
+                        )；
+                        return Err(anyhow::anyhow!("DLMM pool account is not owned by the DLMM program"));
+                    }
+
+                    match DlmmInfo::load_checked(&account.data){
+                        Ok(amm_info)=>{
+                            let sol_mint = sol_mint();
+                            let (token_vault, sol_vault) = 
+                                amm_info.get_token_and_sol_vaults(pool_data.mint, sol_mint);
+                            let bin_arrays = match amm_info.calculate_bin_arrays(&dlmm_pool_pubkey){
+                                Ok(arrays)=> arrays, 
+                                Err(e)=>{
+                                    error!("Error calculating bin arrays for DLMM pool {}: {:?}", dlmm_pool_pubkey, e);
+                                    return Err(e);
+                                }
+                            };
+
+                            let bin_arrays_strings: Vec<String> = 
+                                bin_arrays.iter().map(|pubkey| pubkey.to_string()).collect();
+                            let bin_arrays_str_refs: Vec<&str> = 
+                                bin_arrays_strings.iter().map(|s| s.as_str()).collect();
+
+                            pool_data.add_dlmm_pool(
+                                pool_address,
+                                &token_vault.to_string(),
+                                &sol_vault.to_string(),
+                                &amm_info.oracle.to_string(),
+                                bin_array_str_refs,
+                            )?;
+                            
+                            info!("DLMM pool added: {}", pool_address);
+                            info!("    Token X Mint: {}", amm_info.token_x_mint.to_string());
+                            info!("    Token Y Mint: {}", amm_info.token_y_mint.to_string());
+                            info!("    Token vault: {}", token_vault.to_string());
+                            info!("    Sol vault: {}", sol_vault.to_string());
+                            info!("    Oracle: {}", amm_info.oracle.to_string());
+                            info!("    Active ID: {}", amm_info.active_id);
+                            
+                            // dlmm 会有多个bin array，所以需要打印出来
+                            for(i, array) in bin_array_strings.iter().enumerate(){
+                                info!("    Bin array {}: {}", i, array);
+                            }
+                            info!("");
+                        }
+                        Err(e) =>{
+                            error!("Error parsing AmmInfo from DLMM pool {}: {:?}", dlmm_pool_pubkey, e);
+                            return Err(e);
+                        }
+                    }
+                }
+                Err(e)=>{
+                    error!("Error fetching DLMM pool account {}: {:?}", dlmm_pool_pubkey, e);
+                    return Err(anyhow::anyhow!("Error fetching DLMM pool account"));
+                }
+            }
+        }
 
     }
     if let Some(pool) = whirlpool_pools {
