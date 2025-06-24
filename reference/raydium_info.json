@@ -1,0 +1,313 @@
+{
+    "bump": {
+      "type": {
+        "array": [
+          "u8",
+          1
+        ]
+      },
+      "data": [
+        255
+      ]
+    },
+    "amm_config": {
+      "type": "pubkey",
+      "data": "3h2e43PunVA5K34vwKCLHWhZF4aZpyaC9RmxvshGAQpL"
+    },
+    "owner": {
+      "type": "pubkey",
+      "data": "CJKrW95iMGECdjWtdDnWDAx2cBH7pFE9VywnULfwMapf"
+    },
+    "token_mint_0": {
+      "type": "pubkey",
+      "data": "So11111111111111111111111111111111111111112"
+    },
+    "token_mint_1": {
+      "type": "pubkey",
+      "data": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    },
+    "token_vault_0": {
+      "type": "pubkey",
+      "data": "4ct7br2vTPzfdmY3S5HLtTxcGSBfn6pnw98hsS6v359A"
+    },
+    "token_vault_1": {
+      "type": "pubkey",
+      "data": "5it83u57VRrVgc51oNV19TTmAJuffPx5GtGwQr7gQNUo"
+    },
+    "observation_key": {
+      "type": "pubkey",
+      "data": "3Y695CuQ8AP4anbwAqiEBeQF9KxqHFr8piEwvw3UePnQ"
+    },
+    "mint_decimals_0": {
+      "type": "u8",
+      "data": 9
+    },
+    "mint_decimals_1": {
+      "type": "u8",
+      "data": 6
+    },
+    "tick_spacing": {
+      "type": "u16",
+      "data": "1"
+    },
+    "liquidity": {
+      "type": "u128",
+      "data": "112035621120963"
+    },
+    "sqrt_price_x64": {
+      "type": "u128",
+      "data": "7030853491284420608"
+    },
+    "tick_current": {
+      "type": "i32",
+      "data": "-19293"
+    },
+    "padding3": {
+      "type": "u16",
+      "data": "0"
+    },
+    "padding4": {
+      "type": "u16",
+      "data": "0"
+    },
+    "fee_growth_global_0_x64": {
+      "type": "u128",
+      "data": "3079764148120043264"
+    },
+    "fee_growth_global_1_x64": {
+      "type": "u128",
+      "data": "538347945061849857"
+    },
+    "protocol_fees_token_0": {
+      "type": "u64",
+      "data": "4715501"
+    },
+    "protocol_fees_token_1": {
+      "type": "u64",
+      "data": "1240420"
+    },
+    "swap_in_amount_token_0": {
+      "type": "u128",
+      "data": "29754897326482819"
+    },
+    "swap_out_amount_token_1": {
+      "type": "u128",
+      "data": "4526508880747095"
+    },
+    "swap_in_amount_token_1": {
+      "type": "u128",
+      "data": "4526385821157759"
+    },
+    "swap_out_amount_token_0": {
+      "type": "u128",
+      "data": "29743662053362885"
+    },
+    "status": {
+      "type": "u8",
+      "data": 0
+    },
+    "padding": {
+      "type": {
+        "array": [
+          "u8",
+          7
+        ]
+      },
+      "data": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "reward_infos": {
+      "type": {
+        "array": [
+          {
+            "defined": {
+              "name": "RewardInfo"
+            }
+          },
+          3
+        ]
+      },
+      "data": [
+        {
+          "reward_state": 2,
+          "open_time": "1750182300",
+          "end_time": "1753206300",
+          "last_update_time": "1750745471",
+          "emissions_per_second_x64": "30500568904943041694000",
+          "reward_total_emissioned": "27936490497",
+          "reward_claimed": "26971431499",
+          "token_mint": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
+          "token_vault": "HsBUudV9Y2Z2dJTieWFgK3zhrpX4ELvnfHcAwSBVqDGX",
+          "authority": "NCV2Uo3hfW5LSZXAJe19y6SpC5K98PuQwShCSZgTki3",
+          "reward_growth_global_x64": "115494600543769143"
+        },
+        {
+          "reward_state": 0,
+          "open_time": "0",
+          "end_time": "0",
+          "last_update_time": "0",
+          "emissions_per_second_x64": "0",
+          "reward_total_emissioned": "0",
+          "reward_claimed": "0",
+          "token_mint": "11111111111111111111111111111111",
+          "token_vault": "11111111111111111111111111111111",
+          "authority": "CJKrW95iMGECdjWtdDnWDAx2cBH7pFE9VywnULfwMapf",
+          "reward_growth_global_x64": "0"
+        },
+        {
+          "reward_state": 0,
+          "open_time": "0",
+          "end_time": "0",
+          "last_update_time": "0",
+          "emissions_per_second_x64": "0",
+          "reward_total_emissioned": "0",
+          "reward_claimed": "0",
+          "token_mint": "11111111111111111111111111111111",
+          "token_vault": "11111111111111111111111111111111",
+          "authority": "CJKrW95iMGECdjWtdDnWDAx2cBH7pFE9VywnULfwMapf",
+          "reward_growth_global_x64": "0"
+        }
+      ]
+    },
+    "tick_array_bitmap": {
+      "type": {
+        "array": [
+          "u64",
+          16
+        ]
+      },
+      "data": [
+        "17864017549847433216",
+        "18444315437207387891",
+        "18446744073709551615",
+        "18446744073709551615",
+        "13835053657235652607",
+        "288240041535633902",
+        "72070788185862688",
+        "1075970192",
+        "1073741849",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "total_fees_token_0": {
+      "type": "u64",
+      "data": "9997651742222"
+    },
+    "total_fees_claimed_token_0": {
+      "type": "u64",
+      "data": "9618771959483"
+    },
+    "total_fees_token_1": {
+      "type": "u64",
+      "data": "1520871422875"
+    },
+    "total_fees_claimed_token_1": {
+      "type": "u64",
+      "data": "1463780171402"
+    },
+    "fund_fees_token_0": {
+      "type": "u64",
+      "data": "1559897"
+    },
+    "fund_fees_token_1": {
+      "type": "u64",
+      "data": "264455"
+    },
+    "open_time": {
+      "type": "u64",
+      "data": "1723037622"
+    },
+    "recent_epoch": {
+      "type": "u64",
+      "data": "807"
+    },
+    "padding1": {
+      "type": {
+        "array": [
+          "u64",
+          24
+        ]
+      },
+      "data": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "padding2": {
+      "type": {
+        "array": [
+          "u64",
+          32
+        ]
+      },
+      "data": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  }
