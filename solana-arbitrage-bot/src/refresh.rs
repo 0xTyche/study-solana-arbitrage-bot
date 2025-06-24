@@ -421,7 +421,104 @@ pub async fn initialize_pool_data(
 
     }
     if let Some(pool) = raydium_clmm_pools {
+        for pool_address in pools{
+            let raydium_clmm_program_id = raydium_clmm_program_id();
 
+            match rpc_client.get_account(&Pubkey::from_str(pool_address)?){
+                Ok(account)=>{
+                    // 检查账户是否由raydium clmm 控制
+                    if account.owner != raydium_clmm_program_id{
+                        error!(
+                            "Raydium CLMM pool {} is not owned by the Raydium CLMM program, skipping",
+                            pool_address
+                        );
+                        continue;
+                    }
+
+                    match PoolState::load_checked(&account.data){
+                        Ok(raydium_clmm)=>{
+                            if raydium_clmm.token_mint_0 != pool_data.mint &&
+                                raydium_clmm.token_mint_1 != pool_data.mint
+                            {
+                                error!(
+                                    "Mint {} is not present in the raydium clmm pool {}, skipping", pool_data.mint, pool_address
+                                );
+                                continue;
+                            }
+                            let sol_mint = sol_mint();
+                            let (token_vault, sol_vault) = if sol_mint == raydium_clmm.token_mint_0
+                            {
+                                (raydium_clmm.token_vault_1, raydium_clmm.token_vault_0)
+                            } else if sol_mint == raydium_clmm.token_mint_1 {
+                                (raydium_clmm.token_vault_0, raydium_clmm.token_vault_1)
+                            } else {
+                                error!("SOL is not present in Raydium CLMM pool {}", pool_address);
+                                continue;
+                            };
+
+                            let tick_array_pubkeys = get_tick_array_pubkeys(
+                                &Pubkey::from_str(pool_address)?,
+                                raydium_clmm.tick_current,
+                                raydium_clmm.tick_spacing,
+                                &[-1, 0, 1],
+                                &raydium_clmm_program_id,
+                            )?;
+
+                            let tick_array_strings: Vec<String> = tick_array_pubkeys
+                                .iter()
+                                .map(|pubkey| pubkey.to_string())
+                                .collect();
+
+                            let tick_array_str_refs: Vec<&str> =
+                                tick_array_strings.iter().map(|s| s.as_str()).collect();
+
+                            pool_data.add_raydium_clmm_pool(
+                                pool_address,
+                                &raydium_clmm.amm_config.to_string(),
+                                &raydium_clmm.observation_key.to_string(),
+                                &token_vault.to_string(),
+                                &sol_vault.to_string(),
+                                tick_array_str_refs,
+                            )?;
+                            info!("Raydium CLMM pool added: {}", pool_address);
+                            info!(
+                                "    Token mint 0: {}",
+                                raydium_clmm.token_mint_0.to_string()
+                            );
+                            info!(
+                                "    Token mint 1: {}",
+                                raydium_clmm.token_mint_1.to_string()
+                            );
+                            info!("    Token vault: {}", token_vault.to_string());
+                            info!("    Sol vault: {}", sol_vault.to_string());
+                            info!("    AMM config: {}", raydium_clmm.amm_config.to_string());
+                            info!(
+                                "    Observation key: {}",
+                                raydium_clmm.observation_key.to_string()
+                            );
+
+                            for (i, array) in tick_array_strings.iter().enumerate() {
+                                info!("    Tick Array {}: {}", i, array);
+                            }
+                            info!("");
+
+                        }
+                        Err(e) => {
+                            error!(
+                                "Error parsing Raydium CLMM data from pool {}: {:?}",
+                                pool_address, e
+                            );
+                            continue;
+                        }
+                    }
+
+                }
+                Err(e)=>{
+                    error!("Error fetching Raydium CLMM pool account {}: {:?}", pool_address, e);
+                    continue;
+                }
+            }
+        }
     }
-
+    Ok(pool_data)
 }
