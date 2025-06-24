@@ -321,12 +321,93 @@ pub async fn initialize_pool_data(
 
     }
     if let Some(pool) = whirlpool_pools {
+        // Whirlpool 是由 Orca 推出的 集中式流动性做市协议（Concentrated Liquidity AMM），类似于 Uniswap V3
+        for pool_address in pools{
+            let whirlpool_pool_pubkey = Pubkey::from_str(pool_address)?;
+
+            match rpc_client.get_account(&whirlpool_pool_pubkey){
+                Ok(account)=>{
+                    // 检查账户是否由 whirlpool program 控制
+                    if account.owner != whirlpool_program_id(){
+                        error!(
+                            "Error: Whirlpool pool account is not owned by the Whirlpool program. Expected: {}, Actual: {}",
+                            whirlpool_program_id(), account.owner
+                        );
+                        return Err(anyhow::anyhow!("Whirlpool pool account is not owned by the Whirlpool program"));
+                    }
+                    // 解析数据
+                    match Whirlpool::load_checked(&account.data){
+                        Ok(Whirlpool)=>{
+                            if whirlpool.token_mint_a != pool_data.mint &&
+                                whirlpool.token_mint_b != pool_data.mint{
+                                error!(
+                                    "Mint {} is not present in the whirlpool pool {}, skipping", pool_data.mint, whirlpool_pool_pubkey
+                                );
+                                return Err(anyhow::anyhow!("Invalid whirlpool pool {}", whirlpool_pool_pubkey));
+                            }
+                            let sol_mint = sol_mint();
+                            let (sol_vault, token_vault) = if sol_mint == whirlpool.token_mint_a{
+                                (whirlpool.token_vault_a, whirlpool.token_vault_b)
+                            }
+                            else if sol_mint == whirlpool.token_mint_b{
+                                (whirlpool.token_vault_b, whirlpool.token_vault_a)
+                            }
+                            else{
+                                error!("SOL is not present in the whirlpool pool {}, skipping", whirlpool_pool_pubkey);
+                            };
+                            // 通过种子和程序派生出Whirlpool池子的Oracle地址 PDA程序，返回PDA 地址 和 bump seed 由于我们只关心
+                            let whirlpool_oracle = Pubkey::find_program_address(
+                                &[b"oracle", whirlpool.pool_pubkey.as_ref()],
+                                &whirlpool_program_id(),
+                            ).0;
+
+                            // 从链上获取当前的whirlpool池子的tick array 地址
+                            let whirlpool_tick_arrays = update_tick_array_accounts_for_onchain(
+                                &whirlpool,
+                                &whirlpool_pool_pubkey,
+                                &whirlpool_program_id(),
+                            );
+
+                            // 将tick array 地址转换为字符串
+                            let tick_array_strings: Vec<String> = whirlpool_tick_arrays
+                                .iter()
+                                .map(|meta| meta.pubkey.to_string())
+                                .collect();
+                            
+                            // 将tick array 地址转换为字符串引用
+                            let tick_array_str_refs: Vec<&str> =
+                                tick_array_strings.iter().map(|s| s.as_str()).collect();
+
+                            pool_data.add_whirlpool_pool(
+                                pool_address,
+                                &whirlpool_oracle.to_string(),
+                                &token_vault.to_string(),
+                                &sol_vault.to_string(),
+                                tick_array_str_refs,
+                            )?;
+
+                            info!("Whirlpool pool added: {}", pool_address);
+                            info!("    Token mint A: {}", whirlpool.token_mint_a.to_string());
+                            info!("    Token mint B: {}", whirlpool.token_mint_b.to_string());
+                            info!("    Token vault: {}", token_vault.to_string());
+                            info!("    Sol vault: {}", sol_vault.to_string());
+                            info!("    Oracle: {}", whirlpool_oracle.to_string());
+
+                            for (i, array) in tick_array_strings.iter().enumerate() {
+                                info!("    Tick Array {}: {}", i, array);
+                            }
+                            info!("");
+                        }
+                    }
+                }
+            }
+
+        }
+
 
     }
     if let Some(pool) = raydium_clmm_pools {
 
     }
-    if let Some(pool) = raydium_clmm_pools {
 
-    }
 }
