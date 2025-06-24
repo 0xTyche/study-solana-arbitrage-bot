@@ -116,7 +116,70 @@ pub async fn initialize_pool_data(
     }
 
     if let Some(pool) = raydium_pools {
-        
+        for pool_address in pools {
+            // 获取raydium池子的公钥
+            let raydium_pool_pubkey = Pubkey::from_str(pool_address)?;
+            // 获取raydium池子的数据
+            match rpc_client.get_account(&raydium_pool_pubkey){
+                Ok(account)=>{
+                // 检查账户是否由 raydium 控制
+                if account.owner != raydium_program_id(){
+                    error!(
+                        "Error: Raydium pool account is not owned by the Raydium program. Expected: {}, Actual: {}",
+                        raydium_program_id(), account.owner
+                    );
+                    return Err(anyhow::anyhow!("Raydium pool account is not owned by the Raydium program"));
+                }
+                // 解析 RaydiumAmmInfo 数据
+                match RaydiumAmmInfo::load_checked(&account.data){
+                    Ok(amm_info)=>{
+                        // 检查池子，如果既不是sol池也不是usdc那么直接抛出错误
+                        if amm_info.coin_mint != sol_mint() && amm_info.pc_mint != usdc_mint(){
+                            error!(
+                                "SOL is not present in the raydiumpool: {}", pool_address
+                            );        
+                            return Err(anyhow::anyhow!("SOL is not present in the raydium pool", raydium_pool_pubkey));
+                        }
+                        // 如果是sol池子
+                        let (sol_vault, token_vault) = if sol_mint() == amm_info.coin_mint{
+                            (
+                                amm_info.coin_vault,
+                                amm_info.pc_vault
+                            )
+                        }
+                        else{
+                            (
+                                amm_info.pc_vault, 
+                                amm_info.coin_vault
+                            )
+                        }
+                    }
+
+                    pool_data.add_raydium_pool(
+                        pool_address,
+                        &token_vault.to_string(),
+                        &sol_vault.to_string(),
+                    )?;
+                    info!("Raydium pool added: {}", pool_address);
+                    info!("    Coin mint: {}", amm_info.coin_mint.to_string());
+                    info!("    PC mint: {}", amm_info.pc_mint.to_string());
+                    info!("    Token vault: {}", token_vault.to_string());
+                    info!("    Sol vault: {}", sol_vault.to_string());
+                    info!("    Initialized Raydium pool: {}\n", raydium_pool_pubkey);
+                    }
+                    Err(e)=>{
+                        error!("Error parsing AmmInfo from Raydium pool {}: {:?}", raydium_pool_pubkey, e);
+                        return Err(e);
+                    };
+                }
+            }
+            Err(e)=>{
+                // 如果没能拿到池子的数据就在这里抛出错误
+                error!("Error fetching Raydium pool account {}: {:?}", raydium_pool_pubkey, e);
+                return Err(anyhow::anyhow!("Error fetching Raydium pool account"));
+            }
+        }
+    }
     }
     if let Some(pool) = raydium_cp_pools  {
 
